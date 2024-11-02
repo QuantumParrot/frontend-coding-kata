@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/assets/favicon.ico">
+    <title>Vue Tutorial - Todo MVC</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+    
+    @import "https://unpkg.com/todomvc-app-css@2.4.1/index.css";
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <section class="todoapp">
+        <header class="header">
+            <h1>Todos</h1>
+            <input type="text" class="new-todo" placeholder="What needs to be done?" autofocus>
+        </header>
+        <section class="main">
+            <input type="checkbox" id="toggle-all" class="toggle-all">
+            <label for="toggle-all"></label>
+            <ul class="todo-list">
+                <li class="todo">
+                    <div class="view">
+                        <input type="checkbox" class="toggle">
+                        <label>待辦事項</label>
+                        <button class="destroy"></button>
+                    </div>
+                </li>
+            </ul>
+        </section>
+        <footer class="footer">
+            <span class="todo-count">
+                <strong></strong>
+                <span> items left</span>
+            </span>
+            <ul class="filters">
+                <li><a href="#/all">All</a></li>
+                <li><a href="#/active">Active</a></li>
+                <li><a href="#/completed">Completed</a></li>
+            </ul>
+            <button type="button" class="clear-completed">Clear completed</button>
+        </footer>
+    </section>
+</div>
+
+<script></script>
+
+</body>
+</html>

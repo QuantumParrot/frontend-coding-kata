@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/assets/favicon.ico">
+    <title>Vue Tutorial - Todo MVC</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+    
+    @import "https://unpkg.com/todomvc-app-css@2.4.1/index.css";
+
+    .destroy, .toggle-all { cursor: pointer }
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <section class="todoapp">
+        <header class="header">
+            <h1>Todos</h1>
+            <input
+                type="text" class="new-todo"
+                placeholder="What needs to be done?"
+                v-model.trim="todo.title"
+                @keydown.enter="createTodo"
+                autofocus>
+        </header>
+        <section class="main" v-show="todolist.length">
+            <input type="checkbox" id="toggle-all" class="toggle-all" @click="toggleAll">
+            <label for="toggle-all"></label>
+            <ul class="todo-list">
+                <li
+                    class="todo"
+                    v-for="item in filteredTodos" :key="item.id"
+                    :class="{ completed: item.completed, editing: editingTodo.id === item.id }">
+                    <div class="view">
+                        <input
+                            type="checkbox" class="toggle"
+                            v-model="item.completed">
+                        <label
+                            @dblclick="editTodo(item)">{{ item.title }}</label>
+                        <button
+                            class="destroy"
+                            @click="removeTodo(item.id)"></button>
+                    </div>
+                    <input
+                        type="text" class="edit"
+                        v-if="editingTodo.id === item.id"
+                        v-model="editingTodo.title"
+                        @keydown.enter="finishEdit"
+                        @blur="cancelEdit" @keydown.escape="cancelEdit">
+                </li>
+            </ul>
+        </section>
+        <footer class="footer" v-show="todolist.length">
+            <span class="todo-count">
+                <strong>{{ remaining }}</strong>
+                <span> items left</span>
+            </span>
+            <ul class="filters">
+                <li><a href="#/all" :class="{ selected: filter === 'all' }">All</a></li>
+                <li><a href="#/active" :class="{ selected: filter === 'active' }">Active</a></li>
+                <li><a href="#/completed" :class="{ selected: filter === 'completed' }">Completed</a></li>
+            </ul>
+            <button type="button" class="clear-completed" @click="clearCompleted">Clear completed</button>
+        </footer>
+    </section>
+    <!-- <pre>{{ todo }}</pre> -->
+    <!-- <hr> -->
+    <!-- <pre>{{ todolist }}</pre> -->
+    <!-- <hr> -->
+    <!-- <pre>{{ editingTodo }}</pre> -->
+    <!-- <hr> -->
+    <!-- <pre>{{ filter }}<br>{{ filteredTodos }}</pre> -->
+</div>
+
+<script>
+
+const { createApp, ref, computed, watchEffect, onMounted } = Vue;
+
+const app = createApp({
+
+    setup() {
+
+        const storage_key = 'vue-todos';
+
+        const todolist = ref(JSON.parse(localStorage.getItem(storage_key)) || []);
+
+        watchEffect(() => {
+
+            localStorage.setItem(storage_key, JSON.stringify(todolist.value));
+
+        });
+
+        // create
+
+        const todo = ref({ title: '' });
+
+        const createTodo = () => {
+
+            todo.value = { id: new Date().getTime(), ...todo.value, completed: false }
+            todolist.value.push(todo.value);
+
+            todo.value = { title: '' };
+
+        };
+
+        // delete
+
+        const removeTodo = (id) => {
+
+            todolist.value = todolist.value.filter((todo) => todo.id !== id);
+
+        };
+
+        // edit
+
+        const editingTodo = ref({});
+
+        const editTodo = (todo) => {
+
+            editingTodo.value = { ...todo }
+
+        }
+
+        const finishEdit = () => {
+
+            const target = todolist.value.find((todo) => todo.id === editingTodo.value.id);
+            target.title = editingTodo.value.title;
+
+            cancelEdit();
+
+        }
+
+        const cancelEdit = () => { editingTodo.value = {} }
+
+        // status of todo
+
+        const clearCompleted = () => { todolist.value = todolist.value.filter((todo) => !todo.completed); }
+
+        const toggleAll = () => {
+
+            todolist.value.forEach(todo => todo.completed = !todo.completed);
+
+        }
+
+        const filter = ref('all');
+
+        const filterMethods = {
+
+            all: (todos) => todos,
+            active: (todos) => todos.filter(i => !i.completed),
+            completed: (todos) => todos.filter(i => i.completed),
+
+        }
+
+        const filteredTodos = computed(() => {
+            
+            return filterMethods[filter.value](todolist.value);
+        
+        });
+
+        const remaining = computed(() => filterMethods['active'](todolist.value).length);
+
+        // hashchange
+
+        function onHashChange() {
+
+            const route = window.location.hash.replace(/^#\//, '');
+            filter.value = route;
+
+        }
+
+        window.addEventListener('hashchange', onHashChange);
+
+        return {
+
+            todolist, todo, editingTodo, filter, filteredTodos, remaining,
+            createTodo, removeTodo, editTodo, finishEdit, cancelEdit, toggleAll, clearCompleted,
+
+        }
+
+    }
+
+});
+
+app.mount('#app');
+
+</script>
+
+</body>
+</html>
